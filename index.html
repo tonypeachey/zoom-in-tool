@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Side-by-Side Image Zoom Tool</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-box {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .viewer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0 2rem;
+    }
+
+    .image-container {
+      width: 500px;
+      height: 400px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: zoom-in;
+    }
+
+    .zoom-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .zoom-box {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 1500px auto;
+      display: none;
+    }
+
+    .image-container:hover {
+      cursor: url("https://cdn-icons-png.flaticon.com/512/709/709586.png") 16 16, zoom-in;
+    }
+
+    @media (max-width: 1024px) {
+      .viewer {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .image-container,
+      .zoom-box {
+        width: 90%;
+        height: 300px;
+      }
+
+      .zoom-box {
+        background-size: 1200px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Side-by-Side Hover Zoom Tool</h2>
+
+  <div class="upload-box">
+    <input type="file" id="upload" accept="image/*" />
+  </div>
+
+  <div class="viewer" id="viewer" style="display: none;">
+    <div class="image-container" id="imageBox">
+      <img id="previewImage" class="zoom-image" src="" alt="Uploaded Image" />
+    </div>
+    <div class="zoom-box" id="zoomBox"></div>
+  </div>
+
+  <script>
+    const upload = document.getElementById("upload");
+    const previewImage = document.getElementById("previewImage");
+    const imageBox = document.getElementById("imageBox");
+    const zoomBox = document.getElementById("zoomBox");
+    const viewer = document.getElementById("viewer");
+
+    let imgSrc = "";
+
+    upload.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imgSrc = e.target.result;
+          previewImage.src = imgSrc;
+          zoomBox.style.backgroundImage = `url(${imgSrc})`;
+          viewer.style.display = "flex";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    imageBox.addEventListener("mousemove", function (e) {
+      const rect = imageBox.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const percentX = (x / rect.width) * 100;
+      const percentY = (y / rect.height) * 100;
+
+      zoomBox.style.display = "block";
+      zoomBox.style.backgroundPosition = `${percentX}% ${percentY}%`;
+    });
+
+    imageBox.addEventListener("mouseleave", function () {
+      zoomBox.style.display = "none";
+    });
+  </script>
+
+</body>
+</html>
